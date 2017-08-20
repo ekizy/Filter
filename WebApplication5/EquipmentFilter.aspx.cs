@@ -15,9 +15,9 @@ namespace WebApplication5
         {
             if(!IsPostBack)
             {
-                MySqlConnection con = new MySqlConnection(ConfigurationClass.conString);
-                con.Open();
-                MySqlCommand cmd = con.CreateCommand();
+                SqlDBConfig dbConfig = new SqlDBConfig();
+                dbConfig.connectToDB();
+                MySqlCommand cmd = dbConfig.con.CreateCommand();
                 cmd.CommandText = "SELECT ID,NAME FROM EQUIPMENTS;";
                 MySqlDataAdapter adap = new MySqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
@@ -28,6 +28,7 @@ namespace WebApplication5
                 DropDownList1.DataBind();
                 Label1.Visible = false;
                 GridView1.Visible = false;
+                dbConfig.breakConnection();
             }
 
 
@@ -38,9 +39,9 @@ namespace WebApplication5
             string equipment = DropDownList1.SelectedItem.Text;
             string start = "29.04.2017 "+tbstart.Text+":00";
             string end = "29.04.2017 "+tbend.Text+":00";
-            MySqlConnection con = new MySqlConnection(ConfigurationClass.conString);
-            con.Open(); //open con
-            MySqlCommand cmd = con.CreateCommand();
+            SqlDBConfig dbConfig = new SqlDBConfig();
+            dbConfig.connectToDB();
+            MySqlCommand cmd = dbConfig.con.CreateCommand();
             cmd.CommandText = "SELECT users.username as Username,T4.name as Equipment ,T4.start_date as Beginning,T4.end_date as Finish " +
             "FROM users join (SELECT T3.user,equipments.name,T3.start_date,T3.end_date FROM equipments join (SELECT * FROM exercises JOIN " +
             " (SELECT workoutexercises.workout,workoutexercises.exercise,workoutexercises.exercise_order," +
@@ -55,6 +56,7 @@ namespace WebApplication5
             GridView1.DataSource = ds.Tables[0].DefaultView;
             GridView1.DataBind();
             GridView1.Visible = true;
+            dbConfig.breakConnection();
 
         }
     }

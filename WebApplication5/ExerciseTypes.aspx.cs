@@ -12,16 +12,16 @@ namespace WebApplication5
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            string myConnectionString = ConfigurationClass.conString;
-            MySqlConnection con = new MySqlConnection(myConnectionString);
-            con.Open();
-            MySqlCommand cmd = con.CreateCommand();
+            SqlDBConfig dbConfig = new SqlDBConfig();
+            dbConfig.connectToDB();
+            MySqlCommand cmd = dbConfig.con.CreateCommand();
             cmd.CommandText = "SELECT * FROM EXERCISETYPES";
             MySqlDataAdapter adap = new MySqlDataAdapter(cmd);
             DataSet ds = new DataSet();
             adap.Fill(ds);
             GridView1.DataSource = ds.Tables[0].DefaultView;
             GridView1.DataBind();
+            dbConfig.breakConnection();
         }
     }
 }

@@ -5,8 +5,9 @@ using System.Web;
 
 namespace WebApplication5
 {
-    public class ConfigurationClass
+    public class MuscleGroup
     {
-      public  static string conString = "Server=localhost;Database=smartfit2;Uid=root;Pwd=;";
+        public int id;
+        public string name;
     }
 }

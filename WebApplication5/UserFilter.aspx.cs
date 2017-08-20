@@ -24,9 +24,9 @@ namespace WebApplication5
         {
             string start = "29.04.2017 " + tbstart.Text+":00";
             string end = "29.04.2017 " + tbend.Text+":00";
-            MySqlConnection con = new MySqlConnection(ConfigurationClass.conString);
-            con.Open();
-            MySqlCommand cmd = con.CreateCommand();
+            SqlDBConfig dbConfig = new SqlDBConfig();
+            dbConfig.connectToDB();
+            MySqlCommand cmd = dbConfig.con.CreateCommand();
             cmd.CommandText = "SELECT users.username,T2.workoutnumber,T2.beginning,T2.finish "+ 
             "FROM USERS JOIN (SELECT T1.user,workoutexercises.workout as workoutnumber,T1.start_date as beginning,max(end_date) as finish "+ 
             "FROM workoutexercises JOIN (SELECT userworkouts.id as uswid,workouts.id as wid,userworkouts.user,userworkouts.workout,userworkouts.start_date,workouts.name "+
@@ -38,6 +38,7 @@ namespace WebApplication5
             GridView1.DataSource = ds.Tables[0].DefaultView;
             GridView1.DataBind();
             GridView1.Visible = true;
+            dbConfig.breakConnection();
         }
     }
 }

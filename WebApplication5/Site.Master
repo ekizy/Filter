@@ -53,6 +53,7 @@
                          <li><a runat="server" href="~/Exercises">Exercises</a></li>
                         <li><a runat="server" href="~/EquipmentFilter">FilterEquipments</a></li>
                         <li><a runat="server" href="~/UserFilter">FilterWorkouts</a></li>
+                        <li><a runat="server" href="~/GenerateUserWorkout">Generate User Workout</a></li>
                     </ul>
                 </div>
             </div>

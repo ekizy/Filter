@@ -9,4 +9,6 @@
         In smartfit application machine learning and optimization features will be used.
     </h2>
 
+    <asp:Label ID="Label1" runat="server" Text="Label"></asp:Label>
+
 </asp:Content>
