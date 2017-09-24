@@ -9,7 +9,6 @@ namespace WebApplication5
     {
             public SqlDBConfig dbConfig;
             public Random rnd;
-            public static string beginningDay = "29.04.2017";
             public static  int dayIntervalLow =2;
             public static int dayIntervalHigh = 5;
             public static int hourMin = 9;
@@ -20,6 +19,7 @@ namespace WebApplication5
             public static int maxMuscleGroup = 6;
             public static int minExerciseMuscleGroup = 2;
             public static int maxExerciseMuscleGroup = 3;
+            public static int cardioExerciseNumber = 2;
             
             public static DateTime start = new DateTime(2016, 1, 1);
             public static DateTime end = new DateTime(2017, 1, 1);
@@ -33,134 +33,239 @@ namespace WebApplication5
         //Bütün fonksiyonlardaki inputlar textboxdan alınacak.Consoledan değil.
             public void generateUser(string username)
             {
-                dbConfig.connectToDB();
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = dbConfig.con;
-                string query = "INSERT INTO USERS (USERNAME) VALUES ('" + username + "');";
-                cmd.CommandText = query;
-                cmd.ExecuteNonQuery();
-                dbConfig.breakConnection();
+                using (MySqlConnection con = new MySqlConnection(SqlDBConfig.connectionString))
+                {
+                    con.Open();
+                    MySqlCommand cmd = new MySqlCommand();
+                    cmd.Connection = con;
+                    string query = "INSERT INTO USERS (USERNAME) VALUES ('" + username + "');";
+                    cmd.CommandText = query;
+                    cmd.ExecuteNonQuery();
+                }
 
             }
 
-            public void generateWorkout(string workoutname)
+            public int createWorkout()
             {
-                dbConfig = new SqlDBConfig();
-                dbConfig.connectToDB();
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = dbConfig.con;
-                string query = "INSERT INTO WORKOUTS (NAME) VALUES('" + workoutname + "');";
-                cmd.CommandText = query;
-                cmd.ExecuteNonQuery();
-                dbConfig.breakConnection();
+                using (MySqlConnection con = new MySqlConnection(SqlDBConfig.connectionString))
+                {
+                    con.Open();
+                    MySqlCommand cmd = new MySqlCommand();
+                    cmd.Connection = con;
+                    int workoutNumber = 0;
+                    int workoutID = 0;
+                    string selectQuery = "SELECT COUNT(ID),MAX(ID) FROM WORKOUTS;";
+                    cmd.CommandText = selectQuery;
+                    MySqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        int numberOfRows = reader.GetInt32(0);
+                        if (numberOfRows == 0) workoutNumber = 1;
+                        else workoutNumber = reader.GetInt32(1) + 1;
+                    }
+                    reader.Close();
+                    string workoutname = "Workout " + workoutNumber;
+                    string query = "INSERT INTO WORKOUTS (NAME) VALUES('" + workoutname + "');";
+                    cmd.CommandText = query;
+                    cmd.ExecuteNonQuery();
+
+                    string idQuery = "SELECT MAX(ID) FROM WORKOUTS;";
+                    cmd.CommandText = idQuery;
+                    workoutID = (int)cmd.ExecuteScalar();
+
+
+
+                    return workoutID;
+                }
             }
 
-            public void generateUserWorkout(string username,string workoutname)
+            public UserWorkout generateUserWorkout(int userID,int workoutID,DateTime day)
             {
                 try
                 {
-                    /* List<int> userIDList = dbConfig.getUserIDs();
-                     int randomIndex = rnd.Next(userIDList.Count);
-                     int randomUserID = userIDList[randomIndex];
-
-                     List<int> workoutIDList = dbConfig.getWorkoutIDs();
-                     randomIndex = rnd.Next(workoutIDList.Count);
-                     int randomWorkoutID = workoutIDList[randomIndex]; random seçilme senaryosu şimdilik yorum*/
-
-                    generateUser(username);
-                    generateWorkout(workoutname);
-
-                    List<int> workoutList = dbConfig.getWorkoutIDs();
-                    int workoutID = workoutList.Max();
-
-                    List<int> userList = dbConfig.getUserIDs();
-                    int userID = userList.Max();
-
-                    Console.WriteLine("User Id:" + userID + "\nWorkout Id:" + workoutID);
-
                     TimeSpan start = TimeSpan.FromHours(hourMin);
                     TimeSpan end = TimeSpan.FromHours(hourMax);
                     int maxMinutes = (int)((end - start).TotalMinutes);
 
+                    string Day = convertDateToString(day);
+
                     int minutes = rnd.Next(maxMinutes);
                     TimeSpan workoutStartTime = start.Add(TimeSpan.FromMinutes(minutes));
 
-                    String randomStartDate = beginningDay + " " + workoutStartTime.ToString();
+                    String randomStartDate = Day + " " + workoutStartTime.ToString();
 
                     Console.WriteLine("Start Date: " + randomStartDate + "\n");
 
                     UserWorkout userWorkout = new UserWorkout();
                     userWorkout.workoutID = workoutID;
                     userWorkout.userID = userID;
-                    userWorkout.startDate = randomStartDate;
+                    userWorkout.startDate = Day;
                     userWorkout.startTime = workoutStartTime;
 
-                    dbConfig.connectToDB();
-                    MySqlCommand cmd = new MySqlCommand();
-                    cmd.Connection = dbConfig.con;
-                    string query = "INSERT INTO USERWORKOUTS (user,workout,start_date) VALUES ("
-                        + userWorkout.userID.ToString() + "," + userWorkout.workoutID.ToString()
-                        + ",'" + userWorkout.startDate + "');";
+                    using(MySqlConnection con=new MySqlConnection(SqlDBConfig.connectionString))
+                    {
+                        con.Open();
+                        MySqlCommand cmd = new MySqlCommand();
+                        cmd.Connection = con;
+                        string query = "INSERT INTO USERWORKOUTS (user,workout,start_date) VALUES ("
+                            + userWorkout.userID.ToString() + "," + userWorkout.workoutID.ToString()
+                            + ",'" + randomStartDate + "');";
 
-                    cmd.CommandText = query;
-                    cmd.ExecuteNonQuery();
+                        cmd.CommandText = query;
+                        cmd.ExecuteNonQuery();
+                    }
 
-                    dbConfig.breakConnection();
-
-                    generateWorkoutExercises(userWorkout);
+                    return userWorkout;
                 }
                 catch (NullReferenceException)
                 {
                     Console.WriteLine("Null Reference Exception occured.");
+                    return null;
                 }
 
 
             }
 
-            public void generateWorkoutExercises(UserWorkout userWorkout)
+            public void generateWorkoutExercises(UserWorkout userWorkout, ref List<int> muscleGroupIDs,List<int> subMuscleGroups)
             {
                 List<int> exerciseIDList = dbConfig.getExerciseIDs();
                 TimeSpan time = userWorkout.startTime;
                 int order = 1;
 
-                dbConfig.connectToDB();
-                MySqlCommand cmd = new MySqlCommand();
-                cmd.Connection = dbConfig.con;
+               
+                int exerciseNumber = exerciseNumberMin + rnd.Next(exerciseNumberMax - exerciseNumberMin + 1);
 
-                for (int i = 0; i < 5; i++)
+                int i = 0;
+
+                while ( i < exerciseNumber)
                 {
-                    int randomIndex = rnd.Next(exerciseIDList.Count);
-                    int randomExerciseID = exerciseIDList[randomIndex];
 
-                    WorkoutExercise workoutExercise = new WorkoutExercise();
-                    workoutExercise.exerciseID = randomExerciseID;
-                    workoutExercise.workoutID = userWorkout.workoutID;
-                    workoutExercise.startDate = beginningDay + " " + time.ToString();
-                    workoutExercise.startTime = time;
-                    workoutExercise.endTime = time
-                        + calculateExerciseTime(WorkoutExercise.setNumber, WorkoutExercise.setTime);
-                    workoutExercise.endDate = beginningDay + " " + workoutExercise.endTime.ToString();
-                    workoutExercise.exerciseOrder = order;
+                    using(MySqlConnection con=new MySqlConnection(SqlDBConfig.connectionString))
+                    {
+                        List<int> previousCardioExercises = new List<int>();
+                        if (i < cardioExerciseNumber)
+                        {
+                            con.Open();
+                            MySqlCommand cmd = new MySqlCommand();
+                            cmd.Connection = con;
+                            WorkoutExercise workoutExercise = new WorkoutExercise();
+                            workoutExercise.workoutID = userWorkout.workoutID;
+                            workoutExercise.startDate = userWorkout.startDate + " " + time.ToString();
+                            workoutExercise.startTime = time;
+                            workoutExercise.endTime = time
+                                + calculateExerciseTime(WorkoutExercise.setNumber, WorkoutExercise.setTime);
+                            workoutExercise.endDate = userWorkout.startDate + " " + workoutExercise.endTime.ToString();
+                            workoutExercise.exerciseOrder = order;
 
-                    order++;
-                    exerciseIDList.Remove(randomExerciseID);
-                    time = workoutExercise.endTime + WorkoutExercise.restTime;
+
+                            workoutExercise.exerciseID = chooseCardioExercise();
+
+                            bool found = false;
+
+                            if (previousCardioExercises.Count != 0)
+                            {
+                                for (int a = 0; a < previousCardioExercises.Count; a++)
+                                {
+                                    if (workoutExercise.exerciseID == previousCardioExercises[a])
+                                        found = true;
+
+                                }
+                            }
+                            if (found) continue;
+                            else previousCardioExercises.Add(workoutExercise.exerciseID);
+
+                            i++;
+
+                            order++;
+                            time = workoutExercise.endTime + WorkoutExercise.restTime;
 
 
-                    string query = "INSERT INTO WORKOUTEXERCISES" + " (workout,exercise,exercise_order,"
-                        + "set_number,set_time,"
-                        + "start_date,end_date) VALUES ("
-                        + workoutExercise.workoutID + "," + workoutExercise.exerciseID + "," + workoutExercise.exerciseOrder
-                        + "," + WorkoutExercise.setNumber + "," + WorkoutExercise.setTimeSeconds + ",'" + workoutExercise.startDate
-                        + "','" + workoutExercise.endDate + "');";
+                            string query = "INSERT INTO WORKOUTEXERCISES" + " (workout,exercise,exercise_order,"
+                                + "set_number,set_time,"
+                                + "start_date,end_date) VALUES ("
+                                + workoutExercise.workoutID + "," + workoutExercise.exerciseID + "," + workoutExercise.exerciseOrder
+                                + "," + WorkoutExercise.setNumber + "," + WorkoutExercise.setTimeSeconds + ",'" + workoutExercise.startDate
+                                + "','" + workoutExercise.endDate + "');";
 
-                    cmd.CommandText = query;
-                    cmd.ExecuteNonQuery();
+                            cmd.CommandText = query;
+                            cmd.ExecuteNonQuery();
+
+                        }
+                        else
+                        {
+
+                            con.Open();
+                            int times = minExerciseMuscleGroup + rnd.Next(maxExerciseMuscleGroup - minExerciseMuscleGroup + 1);
+                            int j = 0;
+
+                            if (muscleGroupIDs.Count == 0)
+                                for (int k = 0; k < subMuscleGroups.Count; k++) muscleGroupIDs.Add(subMuscleGroups[k]);
+
+                            int muscleGroup = muscleGroupIDs[rnd.Next(muscleGroupIDs.Count)];
+
+                            muscleGroupIDs.Remove(muscleGroup);
+                            List<int> previousExercises = new List<int>();
+                            while (j < times && i < exerciseNumber)
+                            {
+
+                               
+
+                                MySqlCommand cmd = new MySqlCommand();
+                                cmd.Connection = con;
+
+                                WorkoutExercise workoutExercise = new WorkoutExercise();
+                                workoutExercise.workoutID = userWorkout.workoutID;
+                                workoutExercise.startDate = userWorkout.startDate + " " + time.ToString();
+                                workoutExercise.startTime = time;
+                                workoutExercise.endTime = time
+                                    + calculateExerciseTime(WorkoutExercise.setNumber, WorkoutExercise.setTime);
+                                workoutExercise.endDate = userWorkout.startDate + " " + workoutExercise.endTime.ToString();
+                                workoutExercise.exerciseOrder = order;
+
+                                workoutExercise.exerciseID = chooseExercise(muscleGroup);
+
+                                bool found = false;
+
+                                if (previousExercises.Count != 0)
+                                {
+                                    for(int a=0;a<previousExercises.Count;a++)
+                                    {
+                                        if (workoutExercise.exerciseID == previousExercises[a])
+                                            found = true;
+                                            
+                                    }
+                                }
+                                if (found) continue;
+                                else previousExercises.Add(workoutExercise.exerciseID);
+
+                                i++;
+                                j++;
+
+                                order++;
+                                time = workoutExercise.endTime + WorkoutExercise.restTime;
+
+
+                                string query = "INSERT INTO WORKOUTEXERCISES" + " (workout,exercise,exercise_order,"
+                                    + "set_number,set_time,"
+                                    + "start_date,end_date) VALUES ("
+                                    + workoutExercise.workoutID + "," + workoutExercise.exerciseID + "," + workoutExercise.exerciseOrder
+                                    + "," + WorkoutExercise.setNumber + "," + WorkoutExercise.setTimeSeconds + ",'" + workoutExercise.startDate
+                                    + "','" + workoutExercise.endDate + "');";
+
+                                cmd.CommandText = query;
+                                cmd.ExecuteNonQuery();
+                            }
+                    }
+                    
+
+                       
+
+                    }
+
 
 
 
                 }
-                dbConfig.breakConnection();
             }
 
             public TimeSpan calculateExerciseTime(int setNumber, TimeSpan setTime)
@@ -187,7 +292,7 @@ namespace WebApplication5
             }
              public DateTime nextWorkoutDate(DateTime lastWorkout)
             {
-                int days = rnd.Next(dayIntervalLow, dayIntervalHigh);
+                int days = dayIntervalLow+ rnd.Next(dayIntervalHigh-dayIntervalLow +1);
                 DateTime nextWorkout = lastWorkout.AddDays(days);
                 if (DateTime.Compare(nextWorkout, end) > 0) return error;
                 else return nextWorkout;
@@ -223,7 +328,7 @@ namespace WebApplication5
                 {
                     Pattern ptn =createPattern();
                     monthStart=generateMonthlyWorkouts(ptn, userID, monthStart, monthEnd);
-                    monthEnd = calendarStart.AddDays(30);
+                    monthEnd = monthStart.AddDays(30);
                 }
                 
                 return;
@@ -232,13 +337,30 @@ namespace WebApplication5
             public DateTime generateMonthlyWorkouts(Pattern ptn,int userID,DateTime start,DateTime end)
             {
                 DateTime nextDate = nextWorkoutDate(start);
-                while (DateTime.Compare(nextDate, error) > 0 && DateTime.Compare(nextDate, end) <= 0)
+                List<int> muscleGroups = new List<int>();
+                List<int> subMuscleGroups = new List<int>();
+
+                DateTime possibleDate=new DateTime();
+
+                for (int i = 0; i < ptn.muscleGroups.Count; i++)
                 {
-                    // haftalık workoutlar generate et.
-                    generateWorkout("workout1");
-                    nextDate = nextWorkoutDate(nextDate);
+                    muscleGroups.Add(ptn.muscleGroups[i]);
+                    subMuscleGroups.Add(ptn.muscleGroups[i]);
                 }
-                return nextDate;
+                    
+
+                    while (DateTime.Compare(nextDate, error) > 0 && DateTime.Compare(nextDate, end) <= 0)
+                    {
+                        if (muscleGroups.Count == 0)
+                        {
+                            for (int j = 0; j < ptn.muscleGroups.Count; j++) 
+                                muscleGroups.Add(ptn.muscleGroups[j]);
+                        }
+                        generateWorkout(nextDate, userID, ref muscleGroups,subMuscleGroups);
+                        possibleDate = nextDate;
+                        nextDate = nextWorkoutDate(nextDate);
+                    }
+                return possibleDate;
             }
 
             public Pattern createPattern()
@@ -247,7 +369,7 @@ namespace WebApplication5
 
                 int numberOfMuscleGroups = minMuscleGroup + rnd.Next(maxMuscleGroup - minMuscleGroup + 1);
 
-                muscleGroups.Remove(7);
+                muscleGroups.Remove(7);  // whole body elendi.
 
                 Pattern ptn = new Pattern();
                 List<int> tempList = new List<int>();
@@ -263,10 +385,69 @@ namespace WebApplication5
                 return ptn;
             }
             
-            public void generateWOut(DateTime startDate,int userID,List<int> muscleGroupIDs)
+            public void generateWorkout(DateTime startDate,int userID,ref List<int> muscleGroupIDs,List<int> subMuscleGroups)
             {
+               int workoutID=createWorkout();
+               UserWorkout userWorkout = generateUserWorkout(userID, workoutID, startDate);
+               generateWorkoutExercises(userWorkout, ref muscleGroupIDs,subMuscleGroups);
 
                 return;
+            }
+
+            public int chooseExercise(int muscleGroupID)
+            {
+                using (MySqlConnection con = new MySqlConnection(SqlDBConfig.connectionString))
+                {
+                    con.Open();
+
+                    string query = "SELECT exercises.id from exercises join musclegroups on exercises.muscle_group= musclegroups.id where musclegroups.id=" + muscleGroupID + ";";
+                    MySqlCommand cmd = new MySqlCommand();
+                    cmd.Connection = con;
+                    cmd.CommandText = query;
+
+                    List<int> foundExerciseID = new List<int>();
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+                    int counter = 0;
+                    while (reader.Read())
+                    {
+                        counter++;
+                        foundExerciseID.Add(reader.GetInt32(0));
+                    }
+                    reader.Close();
+                    if (counter == 0) return -1;
+                    int exercise = foundExerciseID[rnd.Next(foundExerciseID.Count)];
+
+
+
+                    return exercise; //exercise id dönsün.
+                }
+            }
+
+            public int chooseCardioExercise()
+            {
+                using (MySqlConnection con = new MySqlConnection(SqlDBConfig.connectionString))
+                {
+                    con.Open();
+
+                    string query = "SELECT exercises.id from exercises join exercisetypes on exercises.exercise_type=exercisetypes.id where exercisetypes.name='CARDIO';";
+                    MySqlCommand cmd = new MySqlCommand();
+                    cmd.Connection =con;
+                    cmd.CommandText = query;
+
+                    List<int> foundExerciseID = new List<int>();
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        foundExerciseID.Add(reader.GetInt32(0));
+                    }
+                    reader.Close();
+
+                    int exercise = foundExerciseID[rnd.Next(foundExerciseID.Count)];
+
+                    return exercise; //exercise id dönsün.
+                }
             }
     }
 

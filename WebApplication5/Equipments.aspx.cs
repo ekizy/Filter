@@ -12,17 +12,17 @@ namespace WebApplication5
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            SqlDBConfig dbConfig = new SqlDBConfig();
-            dbConfig.connectToDB();
-            MySqlCommand cmd = dbConfig.con.CreateCommand();
-            cmd.CommandText = "SELECT * FROM EQUIPMENTS";
-            MySqlDataAdapter adap = new MySqlDataAdapter(cmd);
-            DataSet ds = new DataSet();
-            adap.Fill(ds);
-            GridView1.DataSource = ds.Tables[0].DefaultView;
-            GridView1.DataBind();
-            dbConfig.breakConnection();
-
+            using (MySqlConnection con = new MySqlConnection(SqlDBConfig.connectionString))
+            {
+                con.Open();
+                MySqlCommand cmd =con.CreateCommand();
+                cmd.CommandText = "SELECT * FROM EQUIPMENTS";
+                MySqlDataAdapter adap = new MySqlDataAdapter(cmd);
+                DataSet ds = new DataSet();
+                adap.Fill(ds);
+                GridView1.DataSource = ds.Tables[0].DefaultView;
+                GridView1.DataBind();
+            }
         }
     }
 }

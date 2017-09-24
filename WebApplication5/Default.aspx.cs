@@ -12,8 +12,7 @@ namespace WebApplication5
         protected void Page_Load(object sender, EventArgs e)
         {
             Generator gn = new Generator();
-            Pattern ptn = gn.createPattern();
-            Label1.Text = ptn.muscleGroups.ToString();
+            gn.generateBigData();
         }
     }
 }

@@ -21,8 +21,6 @@ namespace WebApplication5
             string username = TextBox1.Text.ToString();
             string workoutname= TextBox2.Text.ToString();
 
-            genarator.generateUserWorkout(username, workoutname);
-
         }
     }
 }
