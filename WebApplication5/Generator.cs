@@ -9,6 +9,7 @@ namespace WebApplication5
     {
             public SqlDBConfig dbConfig;
             public Random rnd;
+            public UserGenerator userGenerator;
             public static  int dayIntervalLow =2;
             public static int dayIntervalHigh = 5;
             public static int hourMin = 9;
@@ -20,6 +21,14 @@ namespace WebApplication5
             public static int minExerciseMuscleGroup = 2;
             public static int maxExerciseMuscleGroup = 3;
             public static int cardioExerciseNumber = 2;
+
+            public static int dumbellQuantity = 3;
+            public static int ropeQuantity = 2;
+            public static int minQuantity = 1;
+            public static int maxQuantity = 2;
+
+
+            public static int userNumber=1000;
             
             public static DateTime start = new DateTime(2016, 1, 1);
             public static DateTime end = new DateTime(2017, 1, 1);
@@ -28,20 +37,29 @@ namespace WebApplication5
             {
                 dbConfig = new SqlDBConfig();
                 rnd = new Random();
+                userGenerator = new UserGenerator();
             }
 
         //Bütün fonksiyonlardaki inputlar textboxdan alınacak.Consoledan değil.
-            public void generateUser(string username)
+            public void generateUsers()
             {
                 using (MySqlConnection con = new MySqlConnection(SqlDBConfig.connectionString))
                 {
                     con.Open();
                     MySqlCommand cmd = new MySqlCommand();
                     cmd.Connection = con;
-                    string query = "INSERT INTO USERS (USERNAME) VALUES ('" + username + "');";
-                    cmd.CommandText = query;
-                    cmd.ExecuteNonQuery();
+
+                    for (int i = 0; i < userNumber; i++)
+                    {
+                        string username = userGenerator.generateRandomUser();
+                        string query = "INSERT INTO USERS (USERNAME) VALUES ('" + username + "');";
+                        cmd.CommandText = query;
+                        cmd.ExecuteNonQuery();
+                    }
+
                 }
+
+
 
             }
 
@@ -300,7 +318,7 @@ namespace WebApplication5
 
             public string convertDateToString(DateTime Date)
             {
-                return Date.ToString("dd.MM.yyyy");
+                return Date.ToString("yyyy-MM-dd");
             }
 
             public void generateBigData()
@@ -449,6 +467,85 @@ namespace WebApplication5
                     return exercise; //exercise id dönsün.
                 }
             }
+
+           public void generateSmallData()
+            {
+                List<int> userList = dbConfig.getUserIDs();
+
+                for (int i = 0; i < userList.Count; i++)
+                {
+                    int userID = userList[i];
+
+                    DateTime calendarStart = Generator.start;
+                    DateTime calendarEnd = Generator.end;
+
+                    DateTime monthStart = calendarStart;
+                    DateTime monthEnd = calendarStart.AddDays(30);
+
+                    Pattern ptn = createPattern();
+                    monthStart = generateMonthlyWorkouts(ptn, userID, monthStart, monthEnd);
+                }
+                return;
+            }
+
+          public void generateVerySmallData()
+           {
+                List<int> userList = dbConfig.getUserIDs();
+
+                for (int i = 0; i < userList.Count; i++)
+                {
+                    int userID = userList[i];
+
+                    DateTime calendarStart = Generator.start;
+                    DateTime calendarEnd = Generator.end;
+
+                    DateTime monthStart = calendarStart;
+                    DateTime monthEnd = calendarStart.AddDays(7);
+
+                    Pattern ptn = createPattern();
+                    monthStart = generateMonthlyWorkouts(ptn, userID, monthStart, monthEnd);
+                }
+                return;
+            }
+
+          public void generateAllSlots()
+          {
+              List<Equipment> equipmentList = dbConfig.getEquipments();
+
+              for(int i=0;i<equipmentList.Count;i++)
+              {
+                  Equipment equipment = equipmentList[i];
+                  //int times = rnd.Next(3,5);
+                  int times = 1;
+
+                  if (equipment.name == "DUMBBELLS")
+                      times = 1;
+
+                  for(int j=0; j<times ; j++)
+                  {
+                      generateSlot(equipment);
+                  }
+             
+              }
+
+
+         }
+
+        public void generateSlot(Equipment equipment)
+          {
+              using (MySqlConnection con = new MySqlConnection(SqlDBConfig.connectionString))
+              {
+                  con.Open();
+                  MySqlCommand cmd = new MySqlCommand();
+                  cmd.Connection = con;
+                  string query = "INSERT INTO SLOTS (equipmentid) VALUES ("+equipment.id.ToString()+");";
+
+                  cmd.CommandText = query;
+                  cmd.ExecuteNonQuery();
+              }
+
+          }
+           
     }
 
 

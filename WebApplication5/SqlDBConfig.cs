@@ -96,5 +96,31 @@ namespace WebApplication5
             }
 
         }
+
+        public List<Equipment> getEquipments()
+        {
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = con;
+                List<Equipment> equipments = new List<Equipment>();
+                string query = "SELECT * FROM EQUIPMENTS;";
+                cmd.CommandText = query;
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Equipment equipment = new Equipment();
+                    equipment.id = reader.GetInt32(0);
+                    equipment.name = reader.GetString(1);
+
+                    equipments.Add(equipment);
+                }
+
+                return equipments;
+            }
+
+        }
     }
 }

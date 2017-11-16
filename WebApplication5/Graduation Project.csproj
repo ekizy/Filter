@@ -261,6 +261,7 @@
     <Compile Include="UserFilter.aspx.designer.cs">
       <DependentUpon>UserFilter.aspx</DependentUpon>
     </Compile>
+    <Compile Include="UserGenerator.cs" />
     <Compile Include="UserWorkout.cs" />
     <Compile Include="ViewSwitcher.ascx.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
