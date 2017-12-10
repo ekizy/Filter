@@ -170,10 +170,13 @@ namespace WebApplication5
                             workoutExercise.workoutID = userWorkout.workoutID;
                             workoutExercise.startDate = userWorkout.startDate + " " + time.ToString();
                             workoutExercise.startTime = time;
+                            workoutExercise.setNumber = 1;
+                            workoutExercise.setTime = TimeSpan.FromMinutes(rnd.Next(10, 15));
                             workoutExercise.endTime = time
-                                + calculateExerciseTime(WorkoutExercise.setNumber, WorkoutExercise.setTime);
+                                + calculateExerciseTime(workoutExercise.setNumber, workoutExercise.setTime);
                             workoutExercise.endDate = userWorkout.startDate + " " + workoutExercise.endTime.ToString();
                             workoutExercise.exerciseOrder = order;
+
 
 
                             workoutExercise.exerciseID = chooseCardioExercise();
@@ -195,14 +198,14 @@ namespace WebApplication5
                             i++;
 
                             order++;
-                            time = workoutExercise.endTime + WorkoutExercise.restTime;
+                            time = workoutExercise.endTime + workoutExercise.restTime;
 
 
                             string query = "INSERT INTO WORKOUTEXERCISES" + " (workout,exercise,exercise_order,"
                                 + "set_number,set_time,"
                                 + "start_date,end_date) VALUES ("
                                 + workoutExercise.workoutID + "," + workoutExercise.exerciseID + "," + workoutExercise.exerciseOrder
-                                + "," + WorkoutExercise.setNumber + "," + WorkoutExercise.setTimeSeconds + ",'" + workoutExercise.startDate
+                                + "," + workoutExercise.setNumber + "," + workoutExercise.setTimeInSeconds + ",'" + workoutExercise.startDate
                                 + "','" + workoutExercise.endDate + "');";
 
                             cmd.CommandText = query;
@@ -236,7 +239,7 @@ namespace WebApplication5
                                 workoutExercise.startDate = userWorkout.startDate + " " + time.ToString();
                                 workoutExercise.startTime = time;
                                 workoutExercise.endTime = time
-                                    + calculateExerciseTime(WorkoutExercise.setNumber, WorkoutExercise.setTime);
+                                    + calculateExerciseTime(workoutExercise.setNumber, workoutExercise.setTime);
                                 workoutExercise.endDate = userWorkout.startDate + " " + workoutExercise.endTime.ToString();
                                 workoutExercise.exerciseOrder = order;
 
@@ -260,14 +263,14 @@ namespace WebApplication5
                                 j++;
 
                                 order++;
-                                time = workoutExercise.endTime + WorkoutExercise.restTime;
+                                time = workoutExercise.endTime + workoutExercise.restTime;
 
 
                                 string query = "INSERT INTO WORKOUTEXERCISES" + " (workout,exercise,exercise_order,"
                                     + "set_number,set_time,"
                                     + "start_date,end_date) VALUES ("
                                     + workoutExercise.workoutID + "," + workoutExercise.exerciseID + "," + workoutExercise.exerciseOrder
-                                    + "," + WorkoutExercise.setNumber + "," + WorkoutExercise.setTimeSeconds + ",'" + workoutExercise.startDate
+                                    + "," + workoutExercise.setNumber + "," + workoutExercise.setTimeInSeconds + ",'" + workoutExercise.startDate
                                     + "','" + workoutExercise.endDate + "');";
 
                                 cmd.CommandText = query;
@@ -515,11 +518,11 @@ namespace WebApplication5
               for(int i=0;i<equipmentList.Count;i++)
               {
                   Equipment equipment = equipmentList[i];
-                  //int times = rnd.Next(3,5);
-                  int times = 1;
+                  int times = rnd.Next(3,5);
+                  //int times = 1;
 
                   if (equipment.name == "DUMBBELLS")
-                      times = 1;
+                      times = 5;
 
                   for(int j=0; j<times ; j++)
                   {

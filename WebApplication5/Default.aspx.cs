@@ -12,7 +12,7 @@ namespace WebApplication5
         protected void Page_Load(object sender, EventArgs e)
         {
             Generator gn = new Generator();
-            gn.generateAllSlots();
+            gn.generateBigData();
             //gn.generateVerySmallData();
         }
     }
