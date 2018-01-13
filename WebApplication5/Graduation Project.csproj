@@ -113,7 +113,9 @@
     <Content Include="Equipments.aspx" />
     <Content Include="Exercises.aspx" />
     <Content Include="ExerciseTypes.aspx" />
+    <Content Include="FilterUserWorkout.aspx" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="GenerateData.aspx" />
     <Content Include="GenerateUserWorkout.aspx" />
     <Content Include="packages.config" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -224,6 +226,20 @@
     <Compile Include="ExerciseTypes.aspx.designer.cs">
       <DependentUpon>ExerciseTypes.aspx</DependentUpon>
     </Compile>
+    <Compile Include="FilterUserWorkout.aspx.cs">
+      <DependentUpon>FilterUserWorkout.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FilterUserWorkout.aspx.designer.cs">
+      <DependentUpon>FilterUserWorkout.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GenerateData.aspx.cs">
+      <DependentUpon>GenerateData.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GenerateData.aspx.designer.cs">
+      <DependentUpon>GenerateData.aspx</DependentUpon>
+    </Compile>
     <Compile Include="GenerateUserWorkout.aspx.cs">
       <DependentUpon>GenerateUserWorkout.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -253,6 +269,7 @@
       <DependentUpon>Site.Mobile.Master</DependentUpon>
     </Compile>
     <Compile Include="SqlDBConfig.cs" />
+    <Compile Include="SqlDBConfig2.cs" />
     <Compile Include="User.cs" />
     <Compile Include="UserFilter.aspx.cs">
       <DependentUpon>UserFilter.aspx</DependentUpon>

@@ -4,11 +4,5 @@
 
     <br />
     <br />
-    <h2 style="text-align:center;">
-        This is a web application for filtering the database of smartfit application.
-        In smartfit application machine learning and optimization features will be used.
-    </h2>
-
-    <asp:Label ID="Label1" runat="server" Text="Label"></asp:Label>
 
 </asp:Content>

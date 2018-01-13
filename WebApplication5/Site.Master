@@ -16,6 +16,15 @@
         .EquipBtn{
             margin-left:250px;
         }
+
+        .EquipCln{
+            margin-left:200px;
+        }
+
+        .menuItem{
+            font-size:large;
+        }
+        
 </style>
 
 <!DOCTYPE html>
@@ -37,23 +46,16 @@
 
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" runat="server" href="~/">Smartfit</a>
-                </div>
+
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        <li><a runat="server" href="~/ExerciseTypes">ExerciseTypes</a></li>
-                        <li><a runat="server" href="~/Equipments">Equipments</a></li>
-                        <li><a runat="server" href="~/Workouts">Workouts</a></li>
-                         <li><a runat="server" href="~/Exercises">Exercises</a></li>
-                        <li><a runat="server" href="~/EquipmentFilter">FilterEquipments</a></li>
-                        <li><a runat="server" href="~/UserFilter">FilterWorkouts</a></li>
-                        <li><a runat="server" href="~/GenerateUserWorkout">Generate User Workout</a></li>
+                        <li class ="menuItem"><a class="navbar-brand" runat="server" href="~/">SmartFit</a></li>
+                        <li class ="menuItem"><a runat="server" href="~/FilterUserWorkout">Filter User Workout</a></li>
+                        <li class ="menuItem"><a runat="server" href="~/UserFilter">Filter Daily Users</a></li>
+                        <li class ="menuItem"><a runat="server" href="~/FilterUserWorkout">Filter User Workout After Simulation</a></li>
+                        <li class ="menuItem"><a runat="server" href="~/FilterUserWorkout">Filter Daily Users  After Simulation</a></li>
+
+
                     </ul>
                 </div>
             </div>
@@ -67,7 +69,7 @@
     margin-left: auto;
     margin-right: auto;">
             <footer>
-                <p>&copy; <%: DateTime.Now.Year %> - Smartfit</p>
+                <p>&copy; <%: DateTime.Now.Year %> - SmartFit</p>
             </footer>
                  </div>
         </div>

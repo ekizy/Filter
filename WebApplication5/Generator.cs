@@ -172,6 +172,7 @@ namespace WebApplication5
                             workoutExercise.startTime = time;
                             workoutExercise.setNumber = 1;
                             workoutExercise.setTime = TimeSpan.FromMinutes(rnd.Next(10, 15));
+                            workoutExercise.setTimeInSeconds = Convert.ToInt32(workoutExercise.setTime.TotalSeconds);
                             workoutExercise.endTime = time
                                 + calculateExerciseTime(workoutExercise.setNumber, workoutExercise.setTime);
                             workoutExercise.endDate = userWorkout.startDate + " " + workoutExercise.endTime.ToString();
@@ -518,11 +519,19 @@ namespace WebApplication5
               for(int i=0;i<equipmentList.Count;i++)
               {
                   Equipment equipment = equipmentList[i];
-                  int times = rnd.Next(3,5);
-                  //int times = 1;
+                  int times = 0;
+                  if (equipment.name == "BOSU" || equipment.name == "UPRIGHT BIKE" || equipment.name == "CROSS TRAINER"
+                      || equipment.name == "BATTLE ROPE" || equipment.name == "BODYWEIGHT" || equipment.name ==
+                      "ROPE" || equipment.name == "ROWING MACHINE")
+                  {
+                      times = rnd.Next(3, 6);
+                  }
 
+                  else times = rnd.Next(1, 4);
+
+                  //int times = 1;
                   if (equipment.name == "DUMBBELLS")
-                      times = 5;
+                      times = rnd.Next(5,8);
 
                   for(int j=0; j<times ; j++)
                   {

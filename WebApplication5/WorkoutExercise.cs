@@ -31,8 +31,7 @@ namespace WebApplication5
 
 
 
-        public WorkoutExercise()
-        {
+        public WorkoutExercise(){
             Random rnd = new Random();
             setNumber = rnd.Next(setNumberMin, setNumberMax);
             restInSeconds = rnd.Next(restTimeMinSeconds,restTimeMaxSeconds+1);
