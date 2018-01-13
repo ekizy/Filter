@@ -31,7 +31,7 @@ namespace WebApplication5
             Button1.Visible = false;
             Button3.Visible = false;
 
-            Label2.Text = "Choosen Date is " + convertDateToDay(selected);
+            Label2.Text = "Chosen Date is " + convertDateToDay(selected);
             Label2.Visible = true;
             Label2.Font.Size = FontUnit.XLarge;
 
@@ -58,6 +58,7 @@ namespace WebApplication5
                     row.Cells[1].Text = convertDateToTime(DateTime.Parse(row.Cells[1].Text.ToString()));
                     row.Cells[2].Text = convertDateToTime(DateTime.Parse(row.Cells[2].Text.ToString()));
                 }
+
 
                 GridView1.Font.Size = FontUnit.XLarge;
                 GridView1.Visible = true;
